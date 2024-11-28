@@ -64,18 +64,84 @@ document.addEventListener("DOMContentLoaded", () => {
     function searchProducts() {
         const searchInput = document.getElementById("searchInput").value.toLowerCase();
         const searchFilter = document.getElementById("searchFilter").value;
-
+    
+        // Handle case where search filter is not valid
+        if (searchFilter === "0" || !searchFilter) {
+            alert("Please select a valid filter to search by.");
+            return;
+        }
+    
         // Filter products based on the search criteria
         filteredProducts = products.filter(product => {
-            const value = product[searchFilter].toString().toLowerCase();
-            return value.includes(searchInput);
+            const value = product[searchFilter]?.toString().toLowerCase();
+            return value?.includes(searchInput);
         });
-
+    
+        if (filteredProducts.length === 0) {
+            alert("No products found matching your search.");
+        }
+    
         // Update pagination and display the first page of filtered results
         currentPage = 1;
         displayPaginationButtons(filteredProducts);
         displayPage(currentPage);
     }
+    function sortProducts() {
+        const sortFilter = document.getElementById("searchFilter").value;
+        console.log(`Selected filter: ${sortFilter}`);
+        // If no valid sort filter is selected, return early
+        if (sortFilter === "0" || !sortFilter) {
+            alert("Please select a valid sort option.");
+            return;
+        }
+    
+        // Sorting logic based on selected filter
+        switch (sortFilter) {
+            case "0":
+                break;
+            case "id": // Sort by ID descending
+                products.sort((a, b) => b.id - a.id);
+                break;
+            case "name": // Sort by name alphabetically
+                products.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            case "category": // Sort by category alphabetically
+                products.sort((a, b) => a.category.localeCompare(b.category));
+                break;
+            case "low-price": // Sort by lowest price
+                products.sort((a, b) => a.price - b.price);
+                break;
+            case "high-price": // Sort by highest price
+                products.sort((a, b) => b.price - a.price);
+                break;
+            case "recent": // Sort by most recently added (highest ID)
+                products.sort((a, b) => b.id - a.id);
+                break;
+            case "description": // Sort by description alphabetically
+                products.sort((a, b) => a.description.localeCompare(b.description));
+                break;
+            default:
+                alert("Invalid sort option.");
+                return;
+        }
+    
+        // Reset to the first page and display sorted products
+        currentPage = 1;
+        displayPaginationButtons(products);
+        displayPage(currentPage);
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+        loadData(); // Ensure products are loaded
+        document.getElementById("searchFilter").addEventListener("change", sortProducts);
+    });
+    
+    document.getElementById("searchSubmitButton").addEventListener("click", () => {
+        searchProducts();
+        sortProducts();
+    });
+    document.getElementById("searchFilter").addEventListener("change", () => {
+        sortProducts(); // Trigger sorting
+    });
     
     // Function to display filtered results
     function displayFilteredResults(filteredProducts) {
